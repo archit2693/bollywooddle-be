@@ -82,4 +82,9 @@ public class BollywooddleController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(response);
     }
+
+    @GetMapping("/healthCheck")
+    public String test(){
+        return "healthy";
+    }
 }
