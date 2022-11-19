@@ -1,30 +1,35 @@
-version: '3'
+version: '3.7'
 
 services:
-  mysqldb:
-    container_name: mysqldb
-    image: mysql:8.0
-    environment:
-      - MYSQL_DATABASE=emd
-      - MYSQL_ROOT_PASSWORD=root
-    restart: always
-    ports:
-      - 3306:3306
-    volumes:
-      - mysqldb:/var/lib/mysql
-  api:
-    container_name: api
+  app-server:
+    container_name: app-server
     image: bollywoodle-be-img
     build:
-      context: ./
+      context: bollywoodle-be
       dockerfile: Dockerfile
-    depends_on:
-      - mysqldb
     ports:
       - 8080:8080
     restart: always
     dns:
       - 8.8.8.8
+    networks:
+      - backend
+      - frontend
 
-volumes:
-  mysqldb:
+  app-client:
+    build:
+      context: bollywoodle-fe
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_BASE_URL: http://127.0.0.1:8080/api
+    ports:
+      - "3000:80"
+    restart: always
+    depends_on:
+      - app-server
+    networks:
+      - frontend
+
+networks:
+  backend:
+  frontend:
