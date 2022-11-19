@@ -52,6 +52,7 @@
     </dependencies>
 
     <build>
+        <finalName>bollywoodle-be</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -64,6 +65,13 @@
                         </exclude>
                     </excludes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <mainClass>com.example.springbootbackend.SpringbootBackendApplication</mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

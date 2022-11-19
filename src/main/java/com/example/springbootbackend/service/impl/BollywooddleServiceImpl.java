@@ -1,25 +1,23 @@
 package com.example.springbootbackend.service.impl;
 
+import com.example.springbootbackend.model.Movie;
 import com.example.springbootbackend.model.request.GuessMovieRequest;
 import com.example.springbootbackend.model.response.GameResponse;
-import com.example.springbootbackend.model.Movie;
 import com.example.springbootbackend.model.response.GuessMovieResponse;
 import com.example.springbootbackend.service.BollywooddleService;
 import com.example.springbootbackend.service.MovieService;
 import com.example.springbootbackend.util.PixelateImage;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
+import javax.imageio.ImageIO;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Service
 public class BollywooddleServiceImpl implements BollywooddleService {
 
-    private PixelateImage pixelateImage;
-    private MovieService movieService;
-    private final String BASE_PATH = "src/main/resources/images/";
-    private final String IMAGE_TYPE = ".jpg";
-    private final int FULL_RESOLUTION = 1;
+    private final PixelateImage pixelateImage;
+    private final MovieService movieService;
 
     public BollywooddleServiceImpl(MovieService movieService) {
         super();
@@ -33,14 +31,33 @@ public class BollywooddleServiceImpl implements BollywooddleService {
             Movie movie = movieService.getRandomMovie();
             movieTitle = movie.getConcatenatedTitle();
         }
-        var path = BASE_PATH + movieTitle + IMAGE_TYPE;
-        File image = new File(path);
-        return new GameResponse(pixelateImage.pixelateImage(image, resolution), movieTitle);
+        long start = System.currentTimeMillis();
+        InputStream inputStream = getFileFromResourceAsStream("images/" + movieTitle + ".jpg");
+        long end = System.currentTimeMillis();
+        System.out.println("Reading image takes " +
+                (end - start) + "ms");
+        return new GameResponse(pixelateImage.pixelateImage(ImageIO.read(inputStream), resolution), movieTitle);
+
     }
+
+    private InputStream getFileFromResourceAsStream(String fileName) {
+        // The class loader that loaded the class
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream(fileName);
+
+        // the stream holding the file content
+        if (inputStream == null) {
+            throw new IllegalArgumentException("file not found! " + fileName);
+        } else {
+            return inputStream;
+        }
+
+    }
+
 
     @Override
     public GuessMovieResponse guessMovie(GuessMovieRequest guessMovieRequest) {
-
+        int FULL_RESOLUTION = 1;
         if(guessMovieRequest.getMovieTitle().equals("skip")) {
             if (guessMovieRequest.getRetryLeft() <= 1) {
                 return new GuessMovieResponse(false,

@@ -1,7 +1,5 @@
 package com.example.springbootbackend.util;
 
-import org.springframework.context.annotation.Bean;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -10,14 +8,14 @@ import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Locale;
 
 public class PixelateImage {
     int PIX_SIZE = 10;
 
-    public byte[] pixelateImage(File image, int resolution) throws IOException {
+    public byte[] pixelateImage(BufferedImage image, int resolution) throws IOException {
+        long start = System.currentTimeMillis();
         PIX_SIZE = resolution;
-        BufferedImage img = resizeImage(ImageIO.read(image), 600, 800);
+        BufferedImage img = resizeImage(image, 600, 800);
         Raster src = img.getData();
         WritableRaster dest = src.createCompatibleWritableRaster();
         for (int y = 0; y < src.getHeight(); y += PIX_SIZE) {
@@ -35,6 +33,9 @@ public class PixelateImage {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         ImageIO.write(img, "jpg", output);
         byte[] bytes = output.toByteArray();
+        long end = System.currentTimeMillis();
+        System.out.println("Pixelating image takes " +
+                (end - start) + "ms");
         return bytes;
     }
 
